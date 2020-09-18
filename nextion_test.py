@@ -30,6 +30,7 @@ while True:
                 nxlib.nx_setcmd_1par(ser, 'page', 1)
                 try:
                     p = subprocess.run(["ls","-lha"],check=True, stdout=subprocess.PIPE,universal_newlines=True)
+                    sleep(3.0)
                     print(p)
                     nxlib.nx_setcmd_1par(ser, 'page', 2)
                 except:
