@@ -29,8 +29,8 @@ while True:
             if (pageID_touch, compID_touch) == (0, 2):  # Start Button pressed
                 nxlib.nx_setcmd_1par(ser, 'page', 1)
                 try:
-                    p = subprocess.run(["ls","-lha"],check=True, stdout=subprocess.PIPE,universal_newlines=True)
-                    sleep(3.0)
+                    p = subprocess.run(["sh","startCar.sh"],check=True, stdout=subprocess.PIPE,universal_newlines=True)
+                    sleep(2.0)
                     print(p)
                     nxlib.nx_setcmd_1par(ser, 'page', 2)
                 except:

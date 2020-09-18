@@ -1,7 +1,3 @@
-#! /usr/bin/bash
-
-function startCar() {
-    python manage.py drive &
-}
+#! /bin/bash
 cd /home/brian/mycar
-echo $(startCar()) > /tmp/dc/carPID
+python manage.py drive
