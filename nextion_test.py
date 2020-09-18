@@ -29,12 +29,14 @@ while True:
             if (pageID_touch, compID_touch) == (0, 2):  # Start Button pressed
                 nxlib.nx_setcmd_1par(ser, 'page', 1)
                 try:
-                    p = subprocess.run(["sh","startCar.sh"],check=True, stdout=subprocess.PIPE,universal_newlines=True)
+                    path_to_output_file = '/tmp/myout.txt'
+                    outputfile = open(path_to_output_file,'w+')
+                    p = subprocess.run(["python","manage.py","drive"],check=True, stdout=outputfile, stderr=outputfile,universal_newlines=True)
                     sleep(2.0)
-                    print(p)
+                    print(p.returncode)
                     nxlib.nx_setcmd_1par(ser, 'page', 2)
                 except:
-                    print(p) 
+                    print(p.returncode) 
         sleep(look_touch)  ### timeout the bigger the larger the chance of missing a push
     except:
         pass
