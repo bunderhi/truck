@@ -32,9 +32,10 @@ while True:
                 try:
                     subprocess.Popen(["python",os.path.realpath("manage.py"),"drive"], universal_newlines=True, close_fds=True)
                     nxlib.nx_setcmd_1par(ser, 'page', 2)
-                except:
-                    print("Error")
+                except Exception,e:
+                    print("Error", e)
+                ser.close()
+                exit()
         sleep(look_touch)  ### timeout the bigger the larger the chance of missing a push
     except:
         pass
-
