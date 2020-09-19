@@ -2,6 +2,7 @@
 import time
 from time import sleep
 import subprocess
+import os
 import nextion_lib as nxlib
 
 ######### make connection to serial UART to read/write NEXTION
@@ -29,14 +30,10 @@ while True:
             if (pageID_touch, compID_touch) == (0, 2):  # Start Button pressed
                 nxlib.nx_setcmd_1par(ser, 'page', 1)
                 try:
-                    path_to_output_file = '/tmp/myout.txt'
-                    outputfile = open(path_to_output_file,'w+')
-                    p = subprocess.run(["python","manage.py","drive"],check=True, stdout=outputfile, stderr=outputfile,universal_newlines=True)
-                    sleep(2.0)
-                    print(p.returncode)
+                    subprocess.Popen(["python",os.path.realpath("manage.py"),"drive"], universal_newlines=True, close_fds=True)
                     nxlib.nx_setcmd_1par(ser, 'page', 2)
                 except:
-                    print(p.returncode) 
+                    print("Error")
         sleep(look_touch)  ### timeout the bigger the larger the chance of missing a push
     except:
         pass
