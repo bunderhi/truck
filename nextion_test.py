@@ -8,7 +8,7 @@ import nextion_lib as nxlib
 ######### make connection to serial UART to read/write NEXTION
 ser = nxlib.ser
 EndCom = "\xff\xff\xff"
-nxlib.nx_setsys(ser, 'bauds', nxlib.BAUD)  # set default baud (default baud rate of nextion from fabric is 9600)
+# nxlib.nx_setsys(ser, 'bauds', nxlib.BAUD)  # set default baud (default baud rate of nextion from fabric is 9600)
 
 nxlib.nx_setsys(ser, 'bkcmd',0)            # sets in NEXTION 'no return error/success codes'
 print(nxlib.nx_getText(ser, 0, 1))
