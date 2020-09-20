@@ -2,3 +2,4 @@
 Description=Start the Console Display
 [Service]
 ExecStart=/home/brian/start.sh 
+User=brian
