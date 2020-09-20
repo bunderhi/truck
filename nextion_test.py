@@ -8,7 +8,7 @@ import nextion_lib as nxlib
 ######### make connection to serial UART to read/write NEXTION
 ser = nxlib.ser
 EndCom = "\xff\xff\xff"
-#nxlib.nx_setsys(ser, 'bauds', nxlib.BAUD)  # set default baud (default baud rate of nextion from fabric is 9600)
+nxlib.nx_setsys(ser, 'bauds', nxlib.BAUD)  # set default baud (default baud rate of nextion from fabric is 9600)
 
 nxlib.nx_setsys(ser, 'bkcmd',0)            # sets in NEXTION 'no return error/success codes'
 print(nxlib.nx_getText(ser, 0, 1))
@@ -32,10 +32,11 @@ while True:
                 try:
                     subprocess.Popen(["python",os.path.realpath("manage.py"),"drive"], universal_newlines=True, close_fds=True)
                     nxlib.nx_setcmd_1par(ser, 'page', 2)
-                except Exception,e:
-                    print("Error", e)
+                except:
+                    print("Error")
                 ser.close()
-                exit()
+                print("exiting")
+                break
         sleep(look_touch)  ### timeout the bigger the larger the chance of missing a push
     except:
         pass
