@@ -1,1 +1,0 @@
-{"inputs": ["cam/image1", "user/angle", "user/throttle", "pos/x", "pos/y", "pos/z", "rpy/roll", "rpy/pitch", "rpy/yaw"], "types": ["image_array", "float", "float", "float", "float", "float", "float", "float", "float"], "start": 1600638261.8194327}
