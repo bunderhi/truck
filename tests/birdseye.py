@@ -29,6 +29,15 @@ def fisheye_distortion(intrinsics):
     """
     return np.array(intrinsics["coeffs"][:4])
 
+def reverse(self,img):
+    """
+    Reverse the preprocessing performed on an image 
+    """
+    original = np.zeros((800,848,3),dtype=np.uint8)
+    img = cv2.resize(img,None,fx=2.0,fy=2.0,interpolation=cv2.INTER_AREA)
+    original[230:550, 130:770] = img
+    return original
+
 def undistort(img):    
     """
     Perform a fisheye undistort  
@@ -65,32 +74,141 @@ def reverse(img):
     original[230:550, 130:770] = img
     return original
 
+def markup(img):
+    cv2.rectangle(img,(130,230),(770,550),(0,255,0),2)
+    return img
+
+def imgpolygon(img):    
+    
+    pts = np.array([[371,455],[337,550],[472,472],[538,548]], np.int32)
+    pts = pts.reshape((-1,1,2))
+    cv2.polylines(img,[pts],True,(255,255,0))
+    return img
+
+def realpolygon(img):    
+    pts = np.array([[27,65],[73,314],[133,194],[133,314]], np.int32)
+    pts = pts.reshape((-1,1,2))
+    cv2.polylines(img,[pts],True,(0,255,255))
+    return img
+
 def warpperspective(img):
     """
     Create a birdseye view from image 
     """
-    srcpts = np.float32([[400,420],[500,420],[130,550],[770,550]])
-    dstpts = np.float32([[20,50],[40,50],[20,250],[40,250]])
+    #srcpts = np.float32([[394,473],[337,550],[472,472],[540,548]]) # mat pts
+    #dstpts = np.float32([[73,194],[73,314],[133,194],[133,314]])
+    srcpts = np.float32([[371,455],[337,550],[472,472],[538,548]])  # mat + banister pts
+    dstpts = np.float32([[27,65],[73,314],[133,194],[133,314]])
     M = cv2.getPerspectiveTransform(srcpts,dstpts)
-    dst = cv2.warpPerspective(img,M,(60,250))
+    dst = cv2.warpPerspective(img,M,(200,400))
+
+    red = [0,255,0]
+
     return dst
+
+def draw_text(
+        img,
+        *,
+        text,
+        uv_top_left,
+        color=(255, 255, 255),
+        fontScale=0.5,
+        thickness=1,
+        fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+        outline_color=(0, 0, 0),
+        line_spacing=1.5,
+    ):
+        """
+        Draws multiline with an outline.
+        """
+        assert isinstance(text, str)
+
+        uv_top_left = np.array(uv_top_left, dtype=float)
+        assert uv_top_left.shape == (2,)
+
+        for line in text.splitlines():
+            (w, h), _ = cv2.getTextSize(
+                text=line,
+                fontFace=fontFace,
+                fontScale=fontScale,
+                thickness=thickness,
+            )
+            uv_bottom_left_i = uv_top_left + [0, h]
+            org = tuple(uv_bottom_left_i.astype(int))
+
+            if outline_color is not None:
+                cv2.putText(
+                    img,
+                    text=line,
+                    org=org,
+                    fontFace=fontFace,
+                    fontScale=fontScale,
+                    color=outline_color,
+                    thickness=thickness * 3,
+                    lineType=cv2.LINE_AA,
+                )
+            cv2.putText(
+                img,
+                text=line,
+                org=org,
+                fontFace=fontFace,
+                fontScale=fontScale,
+                color=color,
+                thickness=thickness,
+                lineType=cv2.LINE_AA,
+            )
+
+            uv_top_left += [0, h * line_spacing]
+
 
 def main(img_path,out_path):
     
-    #img_path = '/home/brian/cam1/605_cam-image1_.jpg'
-    #out_path = '/home/brian/sample01mask.jpg'
+    alpha = 0.5
+    beta = (1.0 - alpha)
+    fill = np.zeros((2,800,848),dtype=np.uint8)
 
-    img = cv2.imread(img_path)
-    assert img is not None,"File:"+img_path+" not loaded"
+    img_folder = '/home/brian/Downloads/train_data/images'
+    mask_folder = '/home/brian/Downloads/train_data/raw_masks'
+    
+    filename1 = img_path + '.jpg'
+    img = cv2.imread(os.path.join(img_folder,filename1))
+    
+    filename = img_path + '.png'
+    mask = cv2.imread(os.path.join(mask_folder,filename))
+    
+    assert img is not None
+    assert mask is not None
 
-    original = reverse(img)
+    red = reverse(mask)
+    oimg = reverse(img)
+    print(red.shape)
+    print (oimg.shape)
+
+    redm = cv2.cvtColor(red,cv2.COLOR_RGB2GRAY).reshape(1,800,848)
+    redmask = np.vstack((fill,redm)).transpose(1,2,0)
+    aimg = cv2.addWeighted(redmask, alpha, oimg, beta, 0.0)
+    
+    original = markup(aimg)
     undistorted_img = undistort(original)
-    birdseye_img = warpperspective(original)
+    undistorted = imgpolygon(undistorted_img)
+    birdseye_img = warpperspective(undistorted)
+    markup_img = realpolygon(birdseye_img)
+    
+    velx = 0.1
+    vely = 0.01
+    velz = 0.05
+    vx = "{:.1f}".format(velx *100)
+    vy = "{:.1f}".format(vely *100)
+    vz = "{:.1f}".format(velz *100)
+    lines = vx + '\n' + vz + '\n' + vy
+    draw_text(markup_img,text=lines,uv_top_left=(120,240))
+
+
     plt.subplot(131),plt.imshow(original),plt.title('Original')
-    plt.subplot(132),plt.imshow(undistorted_img),plt.title('Undistorted')
-    plt.subplot(133),plt.imshow(birdseye_img),plt.title('Birdseye')
+    plt.subplot(132),plt.imshow(undistorted),plt.title('Undistorted')
+    plt.subplot(133),plt.imshow(markup_img),plt.title('Birdseye')
     plt.show()
-    cv2.imwrite(out_path,birdseye_img) 
+    #cv2.imwrite(out_path,birdseye_img) 
 
 if __name__ == '__main__':
 
