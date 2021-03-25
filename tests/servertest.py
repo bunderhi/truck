@@ -41,7 +41,7 @@ class DriveAPI(RequestHandler):
     def get(self):
         # Set up response dictionary.
         self.response = dict()
-        self.response['outgoing_arg_1'] = 'Response text'
+        self.response['mode'] = self.mode
         self.response['outgoing_arg_2'] = 12345
         output = json.dumps(self.response)
         self.write(output)
@@ -56,6 +56,9 @@ class DriveAPI(RequestHandler):
         except JSONDecodeError as e:
             print('Could not decode message',self.request.body)
 
-
+if __name__ == '__main__':
+    
+    srv = LocalWebController()
+    srv.run()
 
 
