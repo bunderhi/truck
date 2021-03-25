@@ -1,4 +1,5 @@
 import json
+from json.decoder import JSONDecodeError
 import asyncio
 
 from tornado.ioloop import IOLoop
@@ -13,7 +14,6 @@ class LocalWebController(Application):
         Create and publish variables needed on many of 
         the web handlers.
         '''
-
         print('Starting Donkey Server...', end='')
 
         self.mode = mode
@@ -39,12 +39,23 @@ class LocalWebController(Application):
 class DriveAPI(RequestHandler):
 
     def get(self):
-        self.write('<html><body><form action="/myform" method="POST">'
-                   '<input type="text" name="message">'
-                   '<input type="submit" value="Submit">'
-                   '</form></body></html>')
+        # Set up response dictionary.
+        self.response = dict()
+        self.response['outgoing_arg_1'] = 'Response text'
+        self.response['outgoing_arg_2'] = 12345
+        output = json.dumps(self.response)
+        self.write(output)
 
     def post(self):
-        self.set_header("Content-Type", "text/plain")
-        self.write("You wrote " + self.get_body_argument("message"))
+        try:
+            data = json.loads(self.request.body.decode('utf-8'))
+            print('Got JSON data:', data)
+            self.write({ 'got' : 'your data' })
+            for k, v in data.items():
+                print(k,v)
+        except JSONDecodeError as e:
+            print('Could not decode message',self.request.body)
+
+
+
 
