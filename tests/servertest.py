@@ -8,10 +8,10 @@ import tornado.gen
 from socket import gethostname
 
 class LocalWebController(Application):
-    
+
     def __init__(self, port=8887, mode='manual'):
-        ''' 
-        Create and publish variables needed on many of 
+        '''
+        Create and publish variables needed on many of
         the web handlers.
         '''
         print('Starting Donkey Server...', end='')
@@ -41,7 +41,7 @@ class DriveAPI(RequestHandler):
     def get(self):
         # Set up response dictionary.
         self.response = dict()
-        self.response['mode'] = self.mode
+        self.response['mode'] = 'user'
         self.response['outgoing_arg_2'] = 12345
         output = json.dumps(self.response)
         self.write(output)
@@ -57,7 +57,7 @@ class DriveAPI(RequestHandler):
             print('Could not decode message',self.request.body)
 
 if __name__ == '__main__':
-    
+
     srv = LocalWebController()
     srv.run()
 
