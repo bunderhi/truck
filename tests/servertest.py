@@ -9,7 +9,7 @@ from socket import gethostname
 
 class LocalWebController(Application):
     
-    def __init__(self, port=8887, mode='user'):
+    def __init__(self, port=8887, mode='manual'):
         ''' 
         Create and publish variables needed on many of 
         the web handlers.
