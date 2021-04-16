@@ -43,7 +43,7 @@ class ConsoleAPI(RequestHandler):
         # Set up response dictionary.
         self.response = dict()
         self.response['AIPilot'] = True
-        self.response['RunState'] = self.RunState
+        self.response['RunState'] = self.application.RunState
         output = json.dumps(self.response)
         self.write(output)
 
@@ -52,14 +52,11 @@ class ConsoleAPI(RequestHandler):
             data = json.loads(self.request.body.decode('utf-8'))
             print('Got JSON data:', data)
             self.write({ 'got' : 'your data' })
-            for k, v in data.items():
-                print(k,v)
-                if k == 'RunCmd':
-                    self.RunCmd = v
-                    if self.RunCmd == 'start':
-                        self.RunState = 'running'
-                    elif self.RunCmd == 'stop':
-                        self.RunState = 'ready'
+            self.application.RunCmd = data['RunCmd']
+            if self.application.RunCmd == 'start':
+                self.application.RunState = 'running'
+            elif self.application.RunCmd == 'stop':
+                self.application.RunState = 'ready'
         except JSONDecodeError as e:
             print('Could not decode message',self.request.body)
 
