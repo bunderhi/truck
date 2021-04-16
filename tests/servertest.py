@@ -16,13 +16,14 @@ class LocalWebController(Application):
         '''
         print('Starting Donkey Server...', end='')
 
-        self.mode = mode
-        self.recording = False
         self.port = port
+        self.AIPilot = 'True'
+        self.RunState = 'Initializing'
+        self.RunCmd = 'None'
 
         handlers = [
             (r"/", RedirectHandler, dict(url="/drive")),
-            (r"/drive", DriveAPI),
+            (r"/drive", ConsoleAPI),
         ]
 
         settings = {'debug': True}
@@ -36,13 +37,13 @@ class LocalWebController(Application):
         self.listen(self.port)
         IOLoop.instance().start()
 
-class DriveAPI(RequestHandler):
+class ConsoleAPI(RequestHandler):
 
     def get(self):
         # Set up response dictionary.
         self.response = dict()
-        self.response['mode'] = 'user'
-        self.response['outgoing_arg_2'] = 12345
+        self.response['AIPilot'] = True
+        self.response['RunState'] = self.RunState
         output = json.dumps(self.response)
         self.write(output)
 
@@ -53,6 +54,12 @@ class DriveAPI(RequestHandler):
             self.write({ 'got' : 'your data' })
             for k, v in data.items():
                 print(k,v)
+                if k == 'RunCmd':
+                    self.RunCmd = v
+                    if self.RunCmd == 'start':
+                        self.RunState = 'running'
+                    elif self.RunCmd == 'stop':
+                        self.RunState = 'ready'
         except JSONDecodeError as e:
             print('Could not decode message',self.request.body)
 

@@ -67,17 +67,17 @@ data = response.json()
 print(data)
 print(response.status_code)
 response.close()
-runstate = data["runstate"]  
+runstate = data["RunState"]  
 magtag.set_text(runstate)
 
 while True:
     if magtag.peripherals.button_a_pressed:
         print("Button pressed")
         if runstate == 'ready':
-            myobj = {"runcmd": "start"}
+            myobj = {"RunCmd": "start"}
             x = requests.post(DRIVE_URL, json=myobj)
         elif runstate == 'running':
-            myobj = {"runcmd": "stop"}
+            myobj = {"RunCmd": "stop"}
             x = requests.post(DRIVE_URL, json=myobj)
             magtag.set_text(runstate)
         # Blink the neopixels
