@@ -67,7 +67,7 @@ data = response.json()
 print(data)
 print(response.status_code)
 response.close()
-runstate = data["RunState"]  
+runstate = data["RunState"]
 magtag.set_text(runstate)
 
 while True:
@@ -88,6 +88,6 @@ while True:
         print(data)
         print(response.status_code)
         response.close()
-        runstate = data["runstate"]  
+        runstate = data["RunState"]
         magtag.set_text(runstate)
     time.sleep(0.01)
