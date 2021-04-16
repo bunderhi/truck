@@ -18,7 +18,7 @@ class LocalWebController(Application):
 
         self.port = port
         self.AIPilot = 'True'
-        self.RunState = 'Initializing'
+        self.RunState = 'ready'
         self.RunCmd = 'None'
 
         handlers = [
@@ -42,7 +42,7 @@ class ConsoleAPI(RequestHandler):
     def get(self):
         # Set up response dictionary.
         self.response = dict()
-        self.response['AIPilot'] = True
+        self.response['AIPilot'] = self.application.AIPilot
         self.response['RunState'] = self.application.RunState
         output = json.dumps(self.response)
         self.write(output)
