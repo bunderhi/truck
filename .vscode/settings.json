@@ -1,0 +1,13 @@
+{
+    "python.pythonPath": "C:\\Users\\brian\\anaconda3\\python.exe",
+    "python.autoComplete.extraPaths": [
+        null,
+        "c:\\Users\\brian\\.vscode\\extensions\\joedevivo.vscode-circuitpython-0.1.8\\stubs",
+        "c:\\Users\\brian\\AppData\\Roaming\\Code\\User\\globalStorage\\joedevivo.vscode-circuitpython\\bundle\\20210325\\adafruit-circuitpython-bundle-py-20210325\\lib"
+    ],
+    "python.analysis.extraPaths": [
+        null,
+        "c:\\Users\\brian\\.vscode\\extensions\\joedevivo.vscode-circuitpython-0.1.8\\stubs",
+        "c:\\Users\\brian\\AppData\\Roaming\\Code\\User\\globalStorage\\joedevivo.vscode-circuitpython\\bundle\\20210325\\adafruit-circuitpython-bundle-py-20210325\\lib"
+    ]
+}

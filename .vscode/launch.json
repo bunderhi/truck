@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${file}",
             "args": [
-                "--in", "481",
+                "--in", "88_inf-mask.jpg",
                 "--out", "/home/brian/out2.jpg"],
             "console": "integratedTerminal"
         }
