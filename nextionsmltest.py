@@ -36,24 +36,14 @@ def startCar():
                             stderr=subprocess.STDOUT)
     return f,p
 
-# Shell scripts for system monitoring from here : https://unix.stackexchange.com/questions/119126/command-to-display-memory-usage-disk-usage-and-cpu-load
-cmd = "top -bn1 | grep load | awk '{printf \"CPU Load: %.2f\", $(NF-2)}'"
-CPU = subprocess.check_output(cmd, shell = True )
-cmd = "free -m | awk 'NR==2{printf \"Mem: %s/%sMB %.2f%%\", $3,$2,$3*100/$2 }'"
-MemUsage = subprocess.check_output(cmd, shell = True )
-cmd = "df -h | awk '$NF==\"/\"{printf \"Disk: %d/%dGB %s\", $3,$2,$5}'"
-Disk = subprocess.check_output(cmd, shell = True )
-
 ######### make connection to serial UART to read/write NEXTION
 ser = nxlib.ser
 EndCom = "\xff\xff\xff"
 # nxlib.nx_setsys(ser, 'bauds', nxlib.BAUD)  # set default baud (default baud rate of nextion from fabric is 9600)
 state = 'Ready'
 nxlib.nx_setsys(ser, 'bkcmd',0)            # sets in NEXTION 'no return error/success codes'
+nxlib.nx_setcmd_1par(ser, 'page', 0)
 nxlib.nx_setText(ser, 0,1,state)
-nxlib.nx_setText(ser, 1,1,state)
-nxlib.nx_setText(ser, 0,3,'Start')
-nxlib.nx_setText(ser, 1,3,'Stop')
 
 look_touch = 1  # in seconds
 while True:
@@ -66,35 +56,27 @@ while True:
             print("page= {}, component= {}, event= {}".format(pageID_touch,compID_touch,event_touch))
 
             if (pageID_touch, compID_touch) == (0, 3):  # Start Button pressed
-                f,p = startCar()
+                #f,p = startCar()
                 state = 'Running'
-                nxlib.nx_setText(ser, 0,1,state)
-                nxlib.nx_setText(ser, 1,1,state)
                 nxlib.nx_setcmd_1par(ser, 'page', 1)
+                nxlib.nx_setText(ser, 1,1,state)
              
             if (pageID_touch, compID_touch) == (1, 3):  # Stop Button pressed
-                p.terminate
-                try:
-                    p.wait(timeout=0.2)
-                    print('== subprocess exited with rc =',p.returncode)
-                    f.close 
-                    state = 'Stopped'
-                    nxlib.nx_setText(ser, 0,1,state)
-                    nxlib.nx_setText(ser, 1,1,state)
-                    nxlib.nx_setcmd_1par(ser, 'page', 0)
-                except subprocess.TimeoutExpired:
-                    print('subprocess did not terminate in time')
-                    nxlib.nx_setText(ser, 0,1,'Car stop failed')
-                    nxlib.nx_setText(ser, 1,1,'Car stop failed')
-                    nxlib.nx_setcmd_1par(ser, 'page', 1)
-        
-        if state == 'running':
-            rc = p.poll()
-            if rc is not None:
+                #p.terminate
+                #p.wait
+                #print('== subprocess exited with rc =',p.returncode)
+                #f.close 
                 state = 'Stopped'
-                nxlib.nx_setText(ser, 0,1,'Car stopped rc='+rc)
-                nxlib.nx_setText(ser, 1,1,'Car stopped rc='+rc)
                 nxlib.nx_setcmd_1par(ser, 'page', 0)
+                nxlib.nx_setText(ser, 0,1,state)
+        
+        #if state == 'running':
+        #    rc = p.poll()
+        #    if rc is not None:
+        #        state = 'Stopped'
+        #        nxlib.nx_setText(ser, 0,1,'Car stopped rc='+rc)
+        #        nxlib.nx_setText(ser, 1,1,'Car stopped rc='+rc)
+        #        nxlib.nx_setcmd_1par(ser, 'page', 0)
 
         netstat = get_ip_address('wlan0')
         if netstat is not None:

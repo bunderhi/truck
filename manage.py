@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # long running process 
 import time
 STOPINT = 200
