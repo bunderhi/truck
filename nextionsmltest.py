@@ -3,7 +3,14 @@ from time import sleep
 import subprocess
 import os
 import nextion_lib as nxlib
+import sys, signal
 
+
+def signal_handler(signal, frame):
+    print("\nprogram exiting gracefully")
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, signal_handler)
 
 def get_ip_address(interface):
     state = get_network_interface_state(interface)
@@ -29,12 +36,18 @@ def get_network_interface_state(interface):
 
 def startCar():
     p = None
+    logpath = os.path.abspath('./log')
+    if not os.path.exists(logpath):
+        os.mkdir(logpath)
+    
     uniq_filename = str(datetime.datetime.now().date()) + '_' + str(datetime.datetime.now().time()).replace(':', '.')
-    f = open(uniq_filename,'wb')
+    logfile =  os.path.join(logpath, uniq_filename)
+    f = open(logfile,'wb')
     p = subprocess.Popen(['python', '-u', '-m', 'manage.py', 'drive'],
                             stdout=f,
                             stderr=subprocess.STDOUT)
     return f,p
+
 
 ######### make connection to serial UART to read/write NEXTION
 ser = nxlib.ser
@@ -48,7 +61,9 @@ nxlib.nx_setText(ser, 0,1,state)
 look_touch = 1  # in seconds
 while True:
     try:
+
         touch=ser.read_until(EndCom)
+
         if  hex(touch[0]) == '0x65':  #  touch event. If it's empty, do nothing
             pageID_touch = touch[1]
             compID_touch = touch[2]
@@ -56,28 +71,30 @@ while True:
             print("page= {}, component= {}, event= {}".format(pageID_touch,compID_touch,event_touch))
 
             if (pageID_touch, compID_touch) == (0, 3):  # Start Button pressed
-                #f,p = startCar()
+                f,p = startCar()
                 state = 'Running'
                 nxlib.nx_setcmd_1par(ser, 'page', 1)
                 nxlib.nx_setText(ser, 1,1,state)
              
             if (pageID_touch, compID_touch) == (1, 3):  # Stop Button pressed
-                #p.terminate
-                #p.wait
-                #print('== subprocess exited with rc =',p.returncode)
-                #f.close 
+                print('terminate requested')
+                p.terminate
+                p.wait
+                f.close 
                 state = 'Stopped'
                 nxlib.nx_setcmd_1par(ser, 'page', 0)
                 nxlib.nx_setText(ser, 0,1,state)
-        
-        #if state == 'running':
-        #    rc = p.poll()
-        #    if rc is not None:
-        #        state = 'Stopped'
-        #        nxlib.nx_setText(ser, 0,1,'Car stopped rc='+rc)
-        #        nxlib.nx_setText(ser, 1,1,'Car stopped rc='+rc)
-        #        nxlib.nx_setcmd_1par(ser, 'page', 0)
+    
+        sleep(look_touch)  ### timeout the bigger the larger the chance of missing a push
+    except:
 
+        if state == 'Running':
+            rc = p.poll()
+            if rc is not None:
+                f.close 
+                state = 'Stopped'
+                nxlib.nx_setcmd_1par(ser, 'page', 0)
+                nxlib.nx_setText(ser, 0,1,'Car crashed')
         netstat = get_ip_address('wlan0')
         if netstat is not None:
             netstattxt = netstat
@@ -85,7 +102,4 @@ while True:
             netstattxt = 'Network Down'
         nxlib.nx_setText(ser, 0,2,netstattxt)
         nxlib.nx_setText(ser, 1,2,netstattxt)
-
-        sleep(look_touch)  ### timeout the bigger the larger the chance of missing a push
-    except:
-        pass
+        sleep(look_touch)
