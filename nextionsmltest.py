@@ -80,6 +80,7 @@ while True:
                 print('terminate requested')
                 p.terminate
                 p.wait
+                print('terminated rc={}'.format(p.returncode))
                 f.close 
                 state = 'Stopped'
                 nxlib.nx_setcmd_1par(ser, 'page', 0)
