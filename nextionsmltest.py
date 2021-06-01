@@ -78,9 +78,13 @@ while True:
              
             if (pageID_touch, compID_touch) == (1, 3):  # Stop Button pressed
                 print('terminate requested')
-                p.terminate
-                p.wait
-                print('terminated rc={}'.format(p.returncode))
+                try:
+                    p.terminate
+                    p.wait(timeout=0.4)
+                    print('terminated')
+                except:
+                    p.kill
+                    print('hard stop')
                 f.close 
                 state = 'Stopped'
                 nxlib.nx_setcmd_1par(ser, 'page', 0)
