@@ -43,7 +43,7 @@ def startCar():
     uniq_filename = str(datetime.datetime.now().date()) + '_' + str(datetime.datetime.now().time()).replace(':', '.')
     logfile =  os.path.join(logpath, uniq_filename)
     f = open(logfile,'wb')
-    p = subprocess.Popen(['python', '-u', '-m', 'manage.py', 'drive'],
+    p = subprocess.Popen(['python', '-u', 'manage.py', 'drive'],
                             stdout=f,
                             stderr=subprocess.STDOUT)
     return f,p
