@@ -36,7 +36,7 @@ def get_network_interface_state(interface):
 
 def startCar():
     p = None
-    logpath = os.path.abspath('./log')
+    logpath = os.path.abspath('./logs')
     if not os.path.exists(logpath):
         os.mkdir(logpath)
     
@@ -46,7 +46,7 @@ def startCar():
     p = subprocess.Popen(['python', '-u', 'manage.py', 'drive'],
                             stdout=f,
                             stderr=subprocess.STDOUT,
-                            preexec_fn=os.setsid)
+                            shell=True,preexec_fn=os.setsid)
     return f,p
 
 
@@ -79,7 +79,7 @@ while True:
              
             if (pageID_touch, compID_touch) == (1, 3):  # Stop Button pressed
                 print('terminate requested')
-                os.killpg(os.getpgid(p.pid), signal.SIGTERM) 
+                os.killpg(os.getpgid(p.pid), signal.SIGINT) 
                 f.close 
                 state = 'Stopped'
                 nxlib.nx_setcmd_1par(ser, 'page', 0)
