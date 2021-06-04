@@ -45,7 +45,8 @@ def startCar():
     f = open(logfile,'wb')
     p = subprocess.Popen(['python', '-u', 'manage.py', 'drive'],
                             stdout=f,
-                            stderr=subprocess.STDOUT)
+                            stderr=subprocess.STDOUT,
+                            preexec_fn=os.setsid)
     return f,p
 
 
