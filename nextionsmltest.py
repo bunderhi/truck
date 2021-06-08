@@ -46,7 +46,7 @@ def startCar():
     p = subprocess.Popen(['python', '-u', 'manage.py', 'drive'],
                             stdout=f,
                             stderr=subprocess.STDOUT,
-                            shell=True,preexec_fn=os.setsid)
+                            preexec_fn=os.setsid)
     return f,p
 
 
@@ -79,7 +79,8 @@ while True:
              
             if (pageID_touch, compID_touch) == (1, 3):  # Stop Button pressed
                 print('terminate requested')
-                os.killpg(os.getpgid(p.pid), signal.SIGINT) 
+                os.killpg(os.getpgid(p.pid), signal.SIGINT)
+                p.wait() 
                 f.close 
                 state = 'Stopped'
                 nxlib.nx_setcmd_1par(ser, 'page', 0)
@@ -100,6 +101,8 @@ while True:
             netstattxt = netstat
         else:
             netstattxt = 'Network Down'
-        nxlib.nx_setText(ser, 0,2,netstattxt)
-        nxlib.nx_setText(ser, 1,2,netstattxt)
+        if state == 'running':
+            nxlib.nx_setText(ser, 1,2,netstattxt)
+        else:
+            nxlib.nx_setText(ser, 0,2,netstattxt)
         sleep(look_touch)
